@@ -15,7 +15,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom Dark Theme CSS Injection
+# Custom Dark Theme CSS
 st.markdown("""
 <style>
     .main { background-color: #0b0e14; }
@@ -145,10 +145,10 @@ def load_active_ipo_dataset():
             "Open_Date": "2026-08-25",
             "Close_Date": "2026-08-28",
             "Listing_Date": "2026-09-02",
-            "GMP_Rs": np.nan,  # Missing GMP
+            "GMP_Rs": np.nan,
             "GMP_Timestamp": "N/A",
             "GMP_Source": "InvestorGain / Chittorgarh",
-            "QIB_Sub": np.nan,  # Bidding not opened
+            "QIB_Sub": np.nan,
             "NII_Sub": np.nan,
             "Retail_Sub": np.nan,
             "Sub_Timestamp": "N/A",
@@ -172,21 +172,21 @@ def load_active_ipo_dataset():
 def load_historical_backtest_dataset():
     """Loads historical validation dataset constrained to pre-listing cutoffs."""
     backtest_data = [
-        {"Company": "Tata Technologies Ltd.", "Listing_Date": "2023-11-30", "Issue_Price": 500.0, "GMP_Pre": 410.0, "QIB_Sub_Pre": 203.4, "NII_Sub_Pre": 62.1, "PE_Pre": 28.8, "ROE_Pre": 23.7, "Actual_Listing_Price": 1200.0, "Data_Cutoff": "2023-11-29 18:00 IST", "Fold": "2022-2023 Train"},
-        {"Company": "IREDA Ltd.", "Listing_Date": "2023-11-29", "Issue_Price": 32.0, "GMP_Pre": 10.0, "QIB_Sub_Pre": 104.6, "NII_Sub_Pre": 24.2, "PE_Pre": 8.8, "ROE_Pre": 15.2, "Actual_Listing_Price": 50.0, "Data_Cutoff": "2023-11-28 18:00 IST", "Fold": "2022-2023 Train"},
-        {"Company": "Gandhar Oil Refinery", "Listing_Date": "2023-11-30", "Issue_Price": 169.0, "GMP_Pre": 78.0, "QIB_Sub_Pre": 152.5, "NII_Sub_Pre": 26.1, "PE_Pre": 9.5, "ROE_Pre": 42.1, "Actual_Listing_Price": 298.0, "Data_Cutoff": "2023-11-29 18:00 IST", "Fold": "2022-2023 Train"},
-        {"Company": "DOMS Industries Ltd.", "Listing_Date": "2023-12-20", "Issue_Price": 790.0, "GMP_Pre": 530.0, "QIB_Sub_Pre": 115.6, "NII_Sub_Pre": 66.5, "PE_Pre": 43.2, "ROE_Pre": 28.4, "Actual_Listing_Price": 1400.0, "Data_Cutoff": "2023-12-19 18:00 IST", "Fold": "2022-2023 Train"},
-        {"Company": "Inox CVA Ltd.", "Listing_Date": "2023-12-21", "Issue_Price": 660.0, "GMP_Pre": 555.0, "QIB_Sub_Pre": 147.8, "NII_Sub_Pre": 53.2, "PE_Pre": 39.2, "ROE_Pre": 27.8, "Actual_Listing_Price": 933.0, "Data_Cutoff": "2023-12-20 18:00 IST", "Fold": "2022-2023 Train"},
-        {"Company": "Happy Forgings Ltd.", "Listing_Date": "2023-12-27", "Issue_Price": 850.0, "GMP_Pre": 220.0, "QIB_Sub_Pre": 220.5, "NII_Sub_Pre": 62.1, "PE_Pre": 36.4, "ROE_Pre": 21.1, "Actual_Listing_Price": 1001.0, "Data_Cutoff": "2023-12-26 18:00 IST", "Fold": "2022-2023 Train"},
-        {"Company": "Mufti (Credo Brands)", "Listing_Date": "2023-12-27", "Issue_Price": 280.0, "GMP_Pre": 135.0, "QIB_Sub_Pre": 104.9, "NII_Sub_Pre": 55.2, "PE_Pre": 23.1, "ROE_Pre": 29.8, "Actual_Listing_Price": 368.0, "Data_Cutoff": "2023-12-26 18:00 IST", "Fold": "2022-2023 Train"},
-        {"Company": "Jyoti CNC Automation", "Listing_Date": "2024-01-16", "Issue_Price": 331.0, "GMP_Pre": 45.0, "QIB_Sub_Pre": 22.2, "NII_Sub_Pre": 36.5, "PE_Pre": 322.0, "ROE_Pre": 5.2, "Actual_Listing_Price": 370.0, "Data_Cutoff": "2024-01-15 18:00 IST", "Fold": "2024 Validation"},
-        {"Company": "Medi Assist Healthcare", "Listing_Date": "2024-01-23", "Issue_Price": 418.0, "GMP_Pre": 38.0, "QIB_Sub_Pre": 40.1, "NII_Sub_Pre": 14.8, "PE_Pre": 38.2, "ROE_Pre": 17.4, "Actual_Listing_Price": 465.0, "Data_Cutoff": "2024-01-22 18:00 IST", "Fold": "2024 Validation"},
-        {"Company": "BLS E-Services Ltd.", "Listing_Date": "2024-02-06", "Issue_Price": 135.0, "GMP_Pre": 160.0, "QIB_Sub_Pre": 169.2, "NII_Sub_Pre": 300.1, "PE_Pre": 40.2, "ROE_Pre": 33.1, "Actual_Listing_Price": 305.0, "Data_Cutoff": "2024-02-05 18:00 IST", "Fold": "2024 Validation"},
-        {"Company": "Exicom Tele-Systems", "Listing_Date": "2024-03-05", "Issue_Price": 142.0, "GMP_Pre": 170.0, "QIB_Sub_Pre": 121.8, "NII_Sub_Pre": 153.2, "PE_Pre": 34.1, "ROE_Pre": 13.2, "Actual_Listing_Price": 265.0, "Data_Cutoff": "2024-03-04 18:00 IST", "Fold": "2024 Validation"},
-        {"Company": "JG Chemicals Ltd.", "Listing_Date": "2024-03-13", "Issue_Price": 221.0, "GMP_Pre": 30.0, "QIB_Sub_Pre": 32.1, "NII_Sub_Pre": 46.3, "PE_Pre": 15.4, "ROE_Pre": 18.5, "Actual_Listing_Price": 209.0, "Data_Cutoff": "2024-03-12 18:00 IST", "Fold": "2024 Validation"},
-        {"Company": "Kross Ltd.", "Listing_Date": "2024-09-16", "Issue_Price": 240.0, "GMP_Pre": 0.0, "QIB_Sub_Pre": 23.1, "NII_Sub_Pre": 22.0, "PE_Pre": 34.0, "ROE_Pre": 16.2, "Actual_Listing_Price": 240.0, "Data_Cutoff": "2024-09-15 18:00 IST", "Fold": "2025 Test"},
-        {"Company": "Tolins Tyres Ltd.", "Listing_Date": "2024-09-16", "Issue_Price": 226.0, "GMP_Pre": 30.0, "QIB_Sub_Pre": 25.4, "NII_Sub_Pre": 27.2, "PE_Pre": 31.2, "ROE_Pre": 21.0, "Actual_Listing_Price": 228.0, "Data_Cutoff": "2024-09-15 18:00 IST", "Fold": "2025 Test"},
-        {"Company": "Northern Arc Capital", "Listing_Date": "2024-09-24", "Issue_Price": 263.0, "GMP_Pre": 128.0, "QIB_Sub_Pre": 240.8, "NII_Sub_Pre": 142.5, "PE_Pre": 12.8, "ROE_Pre": 14.5, "Actual_Listing_Price": 350.0, "Data_Cutoff": "2024-09-23 18:00 IST", "Fold": "2025 Test"}
+        {"Company": "Tata Technologies Ltd.", "Listing_Date": "2023-11-30", "Issue_Price": 500.0, "GMP_Pre": 410.0, "QIB_Sub_Pre": 203.4, "NII_Sub_Pre": 62.1, "PE_Pre": 28.8, "Industry_PE": 35.0, "ROE_Pre": 23.7, "Actual_Listing_Price": 1200.0, "Data_Cutoff": "2023-11-29 18:00 IST", "Fold": "2022-2023 Train"},
+        {"Company": "IREDA Ltd.", "Listing_Date": "2023-11-29", "Issue_Price": 32.0, "GMP_Pre": 10.0, "QIB_Sub_Pre": 104.6, "NII_Sub_Pre": 24.2, "PE_Pre": 8.8, "Industry_PE": 15.0, "ROE_Pre": 15.2, "Actual_Listing_Price": 50.0, "Data_Cutoff": "2023-11-28 18:00 IST", "Fold": "2022-2023 Train"},
+        {"Company": "Gandhar Oil Refinery", "Listing_Date": "2023-11-30", "Issue_Price": 169.0, "GMP_Pre": 78.0, "QIB_Sub_Pre": 152.5, "NII_Sub_Pre": 26.1, "PE_Pre": 9.5, "Industry_PE": 18.0, "ROE_Pre": 42.1, "Actual_Listing_Price": 298.0, "Data_Cutoff": "2023-11-29 18:00 IST", "Fold": "2022-2023 Train"},
+        {"Company": "DOMS Industries Ltd.", "Listing_Date": "2023-12-20", "Issue_Price": 790.0, "GMP_Pre": 530.0, "QIB_Sub_Pre": 115.6, "NII_Sub_Pre": 66.5, "PE_Pre": 43.2, "Industry_PE": 50.0, "ROE_Pre": 28.4, "Actual_Listing_Price": 1400.0, "Data_Cutoff": "2023-12-19 18:00 IST", "Fold": "2022-2023 Train"},
+        {"Company": "Inox CVA Ltd.", "Listing_Date": "2023-12-21", "Issue_Price": 660.0, "GMP_Pre": 555.0, "QIB_Sub_Pre": 147.8, "NII_Sub_Pre": 53.2, "PE_Pre": 39.2, "Industry_PE": 42.0, "ROE_Pre": 27.8, "Actual_Listing_Price": 933.0, "Data_Cutoff": "2023-12-20 18:00 IST", "Fold": "2022-2023 Train"},
+        {"Company": "Happy Forgings Ltd.", "Listing_Date": "2023-12-27", "Issue_Price": 850.0, "GMP_Pre": 220.0, "QIB_Sub_Pre": 220.5, "NII_Sub_Pre": 62.1, "PE_Pre": 36.4, "Industry_PE": 40.0, "ROE_Pre": 21.1, "Actual_Listing_Price": 1001.0, "Data_Cutoff": "2023-12-26 18:00 IST", "Fold": "2022-2023 Train"},
+        {"Company": "Mufti (Credo Brands)", "Listing_Date": "2023-12-27", "Issue_Price": 280.0, "GMP_Pre": 135.0, "QIB_Sub_Pre": 104.9, "NII_Sub_Pre": 55.2, "PE_Pre": 23.1, "Industry_PE": 30.0, "ROE_Pre": 29.8, "Actual_Listing_Price": 368.0, "Data_Cutoff": "2023-12-26 18:00 IST", "Fold": "2022-2023 Train"},
+        {"Company": "Jyoti CNC Automation", "Listing_Date": "2024-01-16", "Issue_Price": 331.0, "GMP_Pre": 45.0, "QIB_Sub_Pre": 22.2, "NII_Sub_Pre": 36.5, "PE_Pre": 322.0, "Industry_PE": 45.0, "ROE_Pre": 5.2, "Actual_Listing_Price": 370.0, "Data_Cutoff": "2024-01-15 18:00 IST", "Fold": "2024 Validation"},
+        {"Company": "Medi Assist Healthcare", "Listing_Date": "2024-01-23", "Issue_Price": 418.0, "GMP_Pre": 38.0, "QIB_Sub_Pre": 40.1, "NII_Sub_Pre": 14.8, "PE_Pre": 38.2, "Industry_PE": 35.0, "ROE_Pre": 17.4, "Actual_Listing_Price": 465.0, "Data_Cutoff": "2024-01-22 18:00 IST", "Fold": "2024 Validation"},
+        {"Company": "BLS E-Services Ltd.", "Listing_Date": "2024-02-06", "Issue_Price": 135.0, "GMP_Pre": 160.0, "QIB_Sub_Pre": 169.2, "NII_Sub_Pre": 300.1, "PE_Pre": 40.2, "Industry_PE": 45.0, "ROE_Pre": 33.1, "Actual_Listing_Price": 305.0, "Data_Cutoff": "2024-02-05 18:00 IST", "Fold": "2024 Validation"},
+        {"Company": "Exicom Tele-Systems", "Listing_Date": "2024-03-05", "Issue_Price": 142.0, "GMP_Pre": 170.0, "QIB_Sub_Pre": 121.8, "NII_Sub_Pre": 153.2, "PE_Pre": 34.1, "Industry_PE": 38.0, "ROE_Pre": 13.2, "Actual_Listing_Price": 265.0, "Data_Cutoff": "2024-03-04 18:00 IST", "Fold": "2024 Validation"},
+        {"Company": "JG Chemicals Ltd.", "Listing_Date": "2024-03-13", "Issue_Price": 221.0, "GMP_Pre": 30.0, "QIB_Sub_Pre": 32.1, "NII_Sub_Pre": 46.3, "PE_Pre": 15.4, "Industry_PE": 20.0, "ROE_Pre": 18.5, "Actual_Listing_Price": 209.0, "Data_Cutoff": "2024-03-12 18:00 IST", "Fold": "2024 Validation"},
+        {"Company": "Kross Ltd.", "Listing_Date": "2024-09-16", "Issue_Price": 240.0, "GMP_Pre": 0.0, "QIB_Sub_Pre": 23.1, "NII_Sub_Pre": 22.0, "PE_Pre": 34.0, "Industry_PE": 32.0, "ROE_Pre": 16.2, "Actual_Listing_Price": 240.0, "Data_Cutoff": "2024-09-15 18:00 IST", "Fold": "2025 Test"},
+        {"Company": "Tolins Tyres Ltd.", "Listing_Date": "2024-09-16", "Issue_Price": 226.0, "GMP_Pre": 30.0, "QIB_Sub_Pre": 25.4, "NII_Sub_Pre": 27.2, "PE_Pre": 31.2, "Industry_PE": 28.0, "ROE_Pre": 21.0, "Actual_Listing_Price": 228.0, "Data_Cutoff": "2024-09-15 18:00 IST", "Fold": "2025 Test"},
+        {"Company": "Northern Arc Capital", "Listing_Date": "2024-09-24", "Issue_Price": 263.0, "GMP_Pre": 128.0, "QIB_Sub_Pre": 240.8, "NII_Sub_Pre": 142.5, "PE_Pre": 12.8, "Industry_PE": 18.0, "ROE_Pre": 14.5, "Actual_Listing_Price": 350.0, "Data_Cutoff": "2024-09-23 18:00 IST", "Fold": "2025 Test"}
     ]
     return pd.DataFrame(backtest_data)
 
@@ -207,7 +207,7 @@ def fmt_sub(val):
 # ==========================================
 
 def run_scoring_engine(df):
-    """Dynamically calculates 100-Point Score & Scenarios with strict auditability."""
+    """Dynamically calculates 100-Point Score & Scenarios with robust key access."""
     results = df.copy()
     
     # Pre-allocate scoring breakdown columns
@@ -230,18 +230,18 @@ def run_scoring_engine(df):
     results["Model_View"] = "Weak"
 
     for idx, row in results.iterrows():
-        P = row["Issue_Price"]
-        gmp = row["GMP_Rs"]
-        qib = row["QIB_Sub"]
-        nii = row["NII_Sub"]
-        pe = row["PE_Ratio"]
-        ind_pe = row["Industry_PE"]
-        roe = row["ROE"]
-        fresh_pct = row["Fresh_Pct"]
+        P = row.get("Issue_Price", np.nan)
+        gmp = row.get("GMP_Rs", np.nan)
+        qib = row.get("QIB_Sub", np.nan)
+        nii = row.get("NII_Sub", np.nan)
+        pe = row.get("PE_Ratio", np.nan)
+        ind_pe = row.get("Industry_PE", np.nan)
+        roe = row.get("ROE", np.nan)
+        fresh_pct = row.get("Fresh_Pct", np.nan)
 
         # 1. GMP Sentiment Score (Max 35 pts)
         score_gmp = 0.0
-        if pd.notnull(gmp) and P > 0:
+        if pd.notnull(gmp) and pd.notnull(P) and P > 0:
             gmp_pct = (gmp / P) * 100.0
             score_gmp = np.clip((gmp_pct / 80.0) * 35.0, 0.0, 35.0)
 
@@ -282,12 +282,10 @@ def run_scoring_engine(df):
         total_score = round(score_gmp + score_demand + score_val + score_fund + score_struct, 1)
 
         # Listing Scenarios & Expected Target Engine
-        if pd.notnull(gmp):
-            # Model Base Case Target
+        if pd.notnull(gmp) and pd.notnull(P) and P > 0:
             base_p = P + gmp
             base_gain = (gmp / P) * 100.0
             
-            # Scenario Calculations
             bear_p = P + (gmp * 0.50)
             bear_gain = ((bear_p - P) / P) * 100.0
             
@@ -333,14 +331,14 @@ def run_scoring_engine(df):
 
     return results
 
-# Initialize Snapshot State for Data Refresh Audit
+# State Management
 if "previous_snapshot" not in st.session_state:
     st.session_state.previous_snapshot = None
 if "last_refresh_time" not in st.session_state:
     st.session_state.last_refresh_time = "23 Aug 2026, 14:43 IST"
 
 # ==========================================
-# 4. CONSOLIDATED SIDEBAR NAVIGATION (NO REPEATS)
+# 4. CONSOLIDATED SIDEBAR NAVIGATION
 # ==========================================
 
 st.sidebar.title("🧭 NAVIGATION")
@@ -355,7 +353,6 @@ st.sidebar.subheader("⚙️ DATA CONTROLS")
 st.sidebar.caption(f"Last Synced: `{st.session_state.last_refresh_time}`")
 
 if st.sidebar.button("🔄 Refresh IPO Data", use_container_width=True):
-    # Store current state as previous before refresh
     raw_df = load_active_ipo_dataset()
     st.session_state.previous_snapshot = run_scoring_engine(raw_df).copy()
     st.session_state.last_refresh_time = datetime.now().strftime("%d %b %Y, %H:%M IST")
@@ -374,14 +371,13 @@ st.sidebar.markdown("""
 """)
 
 # ==========================================
-# 5. PAGE MODULES
+# 5. DATA PREPARATION & CALCULATIONS
 # ==========================================
 
-# Execute engine on primary active dataset
 df_active_raw = load_active_ipo_dataset()
 df_active = run_scoring_engine(df_active_raw)
 
-# Calculate Backtest Validation Engine Metrics
+# Safe Backtest Dataset Mapping
 df_bt_raw = load_historical_backtest_dataset()
 df_bt_calc = df_bt_raw.copy()
 df_bt_calc["Issue_Price"] = df_bt_calc["Issue_Price"]
@@ -389,6 +385,7 @@ df_bt_calc["GMP_Rs"] = df_bt_calc["GMP_Pre"]
 df_bt_calc["QIB_Sub"] = df_bt_calc["QIB_Sub_Pre"]
 df_bt_calc["NII_Sub"] = df_bt_calc["NII_Sub_Pre"]
 df_bt_calc["PE_Ratio"] = df_bt_calc["PE_Pre"]
+df_bt_calc["Industry_PE"] = df_bt_calc["Industry_PE"]
 df_bt_calc["ROE"] = df_bt_calc["ROE_Pre"]
 df_bt_calc["Fresh_Pct"] = 0.70
 
@@ -397,16 +394,17 @@ df_bt_scored["Actual_Gain_Pct"] = np.round(((df_bt_scored["Actual_Listing_Price"
 df_bt_scored["Error_Pct"] = np.round(df_bt_scored["Expected_Gain_Pct"] - df_bt_scored["Actual_Gain_Pct"], 1)
 df_bt_scored["Abs_Error_Pct"] = np.abs(df_bt_scored["Error_Pct"])
 
-# Validation Metrics
+# Backtest Validation Metrics
 sample_size = len(df_bt_scored)
 directional_acc = (np.sign(df_bt_scored["Expected_Gain_Pct"]) == np.sign(df_bt_scored["Actual_Gain_Pct"])).mean() * 100.0
 corr_r = np.corrcoef(df_bt_scored["Expected_Gain_Pct"], df_bt_scored["Actual_Gain_Pct"])[0, 1]
 mae_val = df_bt_scored["Abs_Error_Pct"].mean()
 rmse_val = np.sqrt((df_bt_scored["Error_Pct"] ** 2).mean())
 
-# ------------------------------------------
-# MODULE 1: OVERVIEW
-# ------------------------------------------
+# ==========================================
+# 6. PAGE MODULES
+# ==========================================
+
 if page == "Overview":
     st.title("Indian IPO Quantitative Analytics & Listing Scenario Engine")
     st.caption("Data-driven IPO research, quantitative scoring, listing scenario analysis, and historical validation.")
@@ -418,7 +416,6 @@ if page == "Overview":
     </div>
     """, unsafe_allow_html=True)
 
-    # What Changed Since Last Refresh Section
     if st.session_state.previous_snapshot is not None:
         st.subheader("⚡ What Changed Since Last Refresh")
         changes_found = False
@@ -429,7 +426,6 @@ if page == "Overview":
             prev_match = prev_df[prev_df["Company"] == comp]
             if not prev_match.empty:
                 p_row = prev_match.iloc[0]
-                # Compare key dynamic attributes
                 gmp_diff = curr_row["GMP_Rs"] - p_row["GMP_Rs"] if pd.notnull(curr_row["GMP_Rs"]) and pd.notnull(p_row["GMP_Rs"]) else 0
                 qib_diff = curr_row["QIB_Sub"] - p_row["QIB_Sub"] if pd.notnull(curr_row["QIB_Sub"]) and pd.notnull(p_row["QIB_Sub"]) else 0
                 score_diff = curr_row["Model_Score"] - p_row["Model_Score"]
@@ -446,7 +442,6 @@ if page == "Overview":
             st.caption("No dynamic numeric changes detected between recent snapshots.")
         st.divider()
 
-    # Top KPI Cards
     top_score_ipo = df_active.loc[df_active["Model_Score"].idxmax()]
     top_gain_ipo = df_active.loc[df_active["Expected_Gain_Pct"].idxmax()]
 
@@ -454,12 +449,11 @@ if page == "Overview":
     k1.metric("Active IPOs", f"{len(df_active)}")
     k2.metric("Highest Quant Score", f"{top_score_ipo['Model_Score']:.0f}/100", help=top_score_ipo['Company'])
     k3.metric("Highest Expected Gain", f"{fmt_pct(top_gain_ipo['Expected_Gain_Pct'])}", help=top_gain_ipo['Company'])
-    k4.metric("Backtested Directional Accuracy", f"{directional_acc:.1f}%", help="Directional accuracy measures whether the model correctly predicts positive/negative listing performance.")
-    k5.metric("Validation Sample", f"{sample_size} IPOs", help="Limited historical sample size constraint.")
+    k4.metric("Backtested Directional Accuracy", f"{directional_acc:.1f}%", help="Directional accuracy measures whether the model correctly predicts positive or negative performance.")
+    k5.metric("Validation Sample", f"{sample_size} IPOs", help="Historical validation sample size.")
 
     st.divider()
 
-    # 1. Quantitative Signal Summary
     st.subheader("📌 Quantitative Signal Summary")
     st.markdown(f"""
     **{top_score_ipo['Company']}** demonstrates the strongest current setup with a Model Score of **{top_score_ipo['Model_Score']}/100** 
@@ -467,11 +461,8 @@ if page == "Overview":
     **{fmt_sub(top_score_ipo['QIB_Sub'])}**, supported by an ROE of **{top_score_ipo['ROE']:.1f}%**.
     """)
 
-    # 2. Ranked Quantitative Scenarios Table
     st.subheader("🏆 Ranked Quantitative IPO Predictions")
     disp_df = df_active.copy().sort_values(by="Model_Score", ascending=False)
-    
-    # Format table for presentation
     disp_df["Rank"] = [f"{i+1:02d}" for i in range(len(disp_df))]
     disp_df["Issue Price"] = disp_df["Issue_Price"].apply(fmt_currency)
     disp_df["GMP"] = disp_df["GMP_Rs"].apply(fmt_currency)
@@ -481,7 +472,6 @@ if page == "Overview":
     cols_show = ["Rank", "Company", "Sector", "Issue Price", "GMP", "Expected Gain", "Model Score", "Risk_Category", "Model_View", "Data_Quality"]
     st.dataframe(disp_df[cols_show].rename(columns={"Risk_Category": "Risk", "Model_View": "Model View", "Data_Quality": "Data Health"}), use_container_width=True, hide_index=True)
 
-    # 3. Model Listing Scenarios Table
     st.subheader("🎯 Model Listing Scenarios")
     scenario_df = df_active.copy()
     scenario_df["Bear Case"] = scenario_df.apply(lambda r: f"{fmt_currency(r['Bear_Price'])} ({fmt_pct(r['Bear_Gain_Pct'])})" if pd.notnull(r['Bear_Price']) else "N/A — Data unavailable", axis=1)
@@ -490,10 +480,7 @@ if page == "Overview":
     
     st.dataframe(scenario_df[["Company", "Issue_Price", "GMP_Rs", "Bear Case", "Base Scenario", "Bull Case"]].rename(columns={"Issue_Price": "Issue Price", "GMP_Rs": "GMP (₹)"}), use_container_width=True, hide_index=True)
 
-    # 4. Risk-Return Scatter Plot
     st.subheader("📈 Model Score Distribution vs Expected Listing Gain")
-    
-    # Filter valid rows for scatter
     scatter_data = df_active.dropna(subset=["Expected_Gain_Pct", "Model_Score"]).copy()
     scatter_data["Bubble_Size"] = scatter_data["QIB_Sub"].fillna(10)
     
@@ -512,7 +499,6 @@ if page == "Overview":
     fig_scatter.update_layout(template="plotly_dark", paper_bgcolor="#0b0e14", plot_bgcolor="#161b22", height=420)
     st.plotly_chart(fig_scatter, use_container_width=True)
 
-    # 5. Model Limitations & Audit Disclosure
     st.subheader("⚠️ Model Limitations & Integrity Notice")
     st.markdown("""
     - **Limited Historical Sample:** Backtested directional metrics are derived from 15 historical IPOs.
@@ -521,9 +507,6 @@ if page == "Overview":
     - **No Fabricated Estimates:** Missing metrics strictly default to `N/A — Data unavailable` to maintain quantitative integrity.
     """)
 
-# ------------------------------------------
-# MODULE 2: IPO DEEP DIVE
-# ------------------------------------------
 elif page == "IPO Deep Dive":
     st.title("🔎 Auditable IPO Research & Deep Dive")
     st.caption("Complete breakdown of underlying factor scores, source timelines, and raw DRHP metrics.")
@@ -532,7 +515,6 @@ elif page == "IPO Deep Dive":
     selected_company = st.selectbox("Select IPO for Deep Dive Analysis:", df_active["Company"].tolist())
     row = df_active[df_active["Company"] == selected_company].iloc[0]
 
-    # Header Badges
     d1, d2, d3 = st.columns(3)
     d1.metric("Model Score", f"{row['Model_Score']:.1f} / 100")
     d2.metric("Model Risk Rating", row["Risk_Category"])
@@ -540,7 +522,6 @@ elif page == "IPO Deep Dive":
 
     st.divider()
 
-    # Section A & B: Details & GMP
     col_a, col_b = st.columns(2)
     with col_a:
         st.subheader("📋 A. Issue Structure & Key Dates")
@@ -559,7 +540,6 @@ elif page == "IPO Deep Dive":
 
     st.divider()
 
-    # Section C & D: Subscription & Financials
     col_c, col_d = st.columns(2)
     with col_c:
         st.subheader("👥 C. Subscription Demand Breakdown")
@@ -577,7 +557,6 @@ elif page == "IPO Deep Dive":
 
     st.divider()
 
-    # Section E: 100-Point Model Audit Trail
     st.subheader("🧠 100-Point Quantitative Model Score Reconciliation")
     
     audit_data = [
@@ -591,9 +570,6 @@ elif page == "IPO Deep Dive":
     st.dataframe(df_audit, use_container_width=True, hide_index=True)
     st.caption(f"**Total Reconciled Score:** `{row['Model_Score']:.1f} / 100.0 Points`")
 
-# ------------------------------------------
-# MODULE 3: IPO COMPARISON
-# ------------------------------------------
 elif page == "IPO Comparison":
     st.title("⚖️ Side-by-Side Active IPO Comparison")
     st.caption("Compare up to 4 current IPOs across demand metrics, valuations, and scenario ranges.")
@@ -610,7 +586,6 @@ elif page == "IPO Comparison":
     else:
         comp_df = df_active[df_active["Company"].isin(selected_ipops)].copy()
         
-        # Build Side-by-Side Metrics Matrix
         comp_matrix = {
             "Metric": [
                 "Sector", "Issue Price", "Issue Size (Cr)", "GMP (₹)", "Expected Listing Gain",
@@ -650,15 +625,11 @@ elif page == "IPO Comparison":
         top_comp = comp_df.loc[comp_df["Model_Score"].idxmax()]
         st.info(f"💡 **Comparative Insight:** **{top_comp['Company']}** holds the highest comparative score ({top_comp['Model_Score']:.1f}/100) among the selected set.")
 
-# ------------------------------------------
-# MODULE 4: MODEL BACKTEST
-# ------------------------------------------
 elif page == "Model Backtest":
     st.title("🧪 Historical Out-of-Sample Validation")
     st.caption("Chronological walk-forward validation across prior Indian IPO listings with strict anti-look-ahead controls.")
     st.divider()
 
-    # Backtest Summary Cards
     b1, b2, b3, b4, b5 = st.columns(5)
     b1.metric("Validation Sample Size", f"{sample_size} IPOs")
     b2.metric("Directional Accuracy", f"{directional_acc:.1f}%", help="Correct prediction of positive or negative listing day performance.")
@@ -673,7 +644,6 @@ elif page == "Model Backtest":
     </div>
     """, unsafe_allow_html=True)
 
-    # Chronological Fold Breakdown
     st.subheader("📅 Chronological Walk-Forward Folds")
     fold_summary = df_bt_scored.groupby("Fold").agg(
         Sample_Count=("Company", "count"),
@@ -683,7 +653,6 @@ elif page == "Model Backtest":
     
     st.dataframe(fold_summary.rename(columns={"Sample_Count": "Sample Count", "MAE_pp": "Fold MAE (pp)", "Directional_Acc": "Directional Accuracy (%)"}), use_container_width=True, hide_index=True)
 
-    # Scatter Plot
     st.subheader("📊 Predicted Expected Gain vs Actual Exchange Listing Gain")
     fig_bt = px.scatter(
         df_bt_scored,
@@ -698,7 +667,6 @@ elif page == "Model Backtest":
     fig_bt.update_layout(template="plotly_dark", paper_bgcolor="#0b0e14", plot_bgcolor="#161b22", height=480)
     st.plotly_chart(fig_bt, use_container_width=True)
 
-    # Auditable Historical Dataset Table
     st.subheader("📋 Auditable Pre-Listing Backtest Dataset")
     bt_disp = df_bt_scored.copy()
     bt_disp["Issue Price"] = bt_disp["Issue_Price"].apply(fmt_currency)
@@ -711,9 +679,6 @@ elif page == "Model Backtest":
     cols_bt = ["Company", "Fold", "Listing_Date", "Issue Price", "GMP (Pre)", "QIB_Sub_Pre", "Predicted Gain", "Actual Price", "Actual Gain", "Error (pp)", "Data_Cutoff"]
     st.dataframe(bt_disp[cols_bt].rename(columns={"QIB_Sub_Pre": "QIB Sub", "Listing_Date": "Listing Date", "Data_Cutoff": "Data Cutoff"}), use_container_width=True, hide_index=True)
 
-# ------------------------------------------
-# MODULE 5: FACTOR DRIVERS
-# ------------------------------------------
 elif page == "Factor Drivers":
     st.title("🔬 Factor Drivers & Scoring Weights")
     st.caption("Methodological decomposition of model weights versus empirical factor association.")
@@ -722,13 +687,12 @@ elif page == "Factor Drivers":
     st.markdown("""
     <div class='info-box'>
         <b>Methodology Distinction:</b><br>
-        • <b>Model Assigned Weight:</b> Represents the assigned structural points (out of 100) within the quantitative scoring framework.<br>
+        • <b>Model Assigned Weight:</b> Represents assigned structural points (out of 100) within the quantitative scoring framework.<br>
         • <b>Empirical Correlation (Pearson's r):</b> Represents the historical linear association between the factor and actual listing performance.<br>
         <i>Note: These metrics illustrate distinct conceptual dimensions and are not directly equivalent.</i>
     </div>
     """, unsafe_allow_html=True)
 
-    # Factor Data
     factors_data = [
         {"Factor Component": "GMP Sentiment Ratio", "Model Weight (Points)": 35, "Empirical Correlation (r)": 0.82, "Description": "Ratio of OTC Grey Market Premium to upper price band."},
         {"Factor Component": "QIB Subscription Demand", "Model Weight (Points)": 25, "Empirical Correlation (r)": 0.74, "Description": "Institutional bidding multiple at issue close."},
@@ -742,7 +706,6 @@ elif page == "Factor Drivers":
     st.subheader("📊 Model Weight vs Historical Factor Association")
     st.dataframe(df_factors, use_container_width=True, hide_index=True)
 
-    # Visualization
     fig_f = go.Figure()
     fig_f.add_trace(go.Bar(x=df_factors["Factor Component"], y=df_factors["Model Weight (Points)"], name="Model Weight (Pts)", marker_color="#2f81f7"))
     fig_f.add_trace(go.Bar(x=df_factors["Factor Component"], y=df_factors["Empirical Correlation (r)"] * 100, name="Empirical Correlation (r × 100)", marker_color="#3fb950"))
@@ -750,9 +713,6 @@ elif page == "Factor Drivers":
     fig_f.update_layout(barmode="group", template="plotly_dark", paper_bgcolor="#0b0e14", plot_bgcolor="#161b22", height=400)
     st.plotly_chart(fig_f, use_container_width=True)
 
-# ------------------------------------------
-# MODULE 6: DATA SOURCES
-# ------------------------------------------
 elif page == "Data Sources":
     st.title("🗄️ Data Architecture, Hierarchy & Integrity Legend")
     st.caption("Source traceability matrix, update frequencies, and quality control rules.")
