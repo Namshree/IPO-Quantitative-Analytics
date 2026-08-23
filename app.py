@@ -54,8 +54,15 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+# Helper function for safe dataframe column extraction
+def get_safe_value(row, possible_cols, default="N/A"):
+    for col in possible_cols:
+        if col in row.index and pd.notna(row[col]):
+            return row[col]
+    return default
+
 # ==========================================
-# 2. PRESERVED LIVE DATA PIPELINE & SCRAPER
+# 2. LIVE DATA PIPELINE & SCRAPER
 # ==========================================
 @st.cache_data(ttl=3600)
 def fetch_live_chittorgarh_ipos():
@@ -115,7 +122,7 @@ def fetch_live_chittorgarh_ipos():
     return pd.DataFrame(ipos)
 
 # ==========================================
-# 3. PRESERVED & EXTENDED SCORING MODEL
+# 3. QUANTITATIVE SCORING MODEL
 # ==========================================
 def run_scoring_model(df):
     """Computes 100-Point quantitative score, factor components, confidence & targets."""
@@ -127,19 +134,19 @@ def run_scoring_model(df):
     for _, row in df_calc.iterrows():
         gmp_pct = row["GMP_Rs"] / row["Price_Band_Max"]
         
-        # Factor Component Reconciliation (Sum = 100)
+        # Component breakdown
         s_gmp = 25 if gmp_pct > 0.60 else (20 if gmp_pct > 0.40 else (15 if gmp_pct > 0.20 else (8 if gmp_pct > 0.05 else 0)))
         
         s_qib = 15 if row["QIB_Sub"] > 100 else (12 if row["QIB_Sub"] > 50 else (9 if row["QIB_Sub"] > 20 else (5 if row["QIB_Sub"] > 5 else 1)))
         s_nii = 10 if row["NII_Sub"] > 75 else (8 if row["NII_Sub"] > 30 else (6 if row["NII_Sub"] > 10 else 3))
         s_ret = 5 if row["Ret_Sub"] > 25 else (4 if row["Ret_Sub"] > 10 else 2)
-        s_demand = s_qib + s_nii + s_ret # Max 30
+        s_demand = s_qib + s_nii + s_ret
         
         val_diff = (row["Peer_PE"] - row["PE_Ratio"]) / row["Peer_PE"] if row["Peer_PE"] > 0 else 0
-        s_val = 15 if val_diff > 0.20 else (11 if val_diff >= 0 else 5) # Max 15
+        s_val = 15 if val_diff > 0.20 else (11 if val_diff >= 0 else 5)
         
-        s_fund = (10 if row["ROE"] > 18 else 5) + (10 if row["Debt_Equity"] < 0.3 else 5) # Max 20
-        s_struct = (8 if row["Fresh_Pct"] >= 0.60 else 4) + 2 # Max 10
+        s_fund = (10 if row["ROE"] > 18 else 5) + (10 if row["Debt_Equity"] < 0.3 else 5)
+        s_struct = (8 if row["Fresh_Pct"] >= 0.60 else 4) + 2
         
         total = s_gmp + s_demand + s_val + s_fund + s_struct
         
@@ -180,17 +187,20 @@ def run_scoring_model(df):
     
     return df_calc.sort_values(by="IPO_Score", ascending=False).reset_index(drop=True)
 
-# Fetch Data globally so all sub-pages access identical dataframe
+# Top-level dataset initialization
 df_raw = fetch_live_chittorgarh_ipos()
 df_scored = run_scoring_model(df_raw)
 
 # ==========================================
-# 4. SINGLE GLOBAL SIDEBAR NAVIGATION
+# 4. SIDEBAR NAVIGATION CONTROLS
 # ==========================================
 st.sidebar.markdown("### 📊 NAVIGATION")
+NAV_OPTIONS = ["Overview", "IPO Deep Dive", "Model Backtest", "Factor Drivers", "Data Sources"]
+
 page = st.sidebar.radio(
-    "Select Section",
-    ["Overview", "IPO Deep Dive", "Model Backtest", "Factor Drivers", "Data Sources"],
+    "Select Page:",
+    NAV_OPTIONS,
+    index=0,
     label_visibility="collapsed"
 )
 
@@ -209,11 +219,11 @@ st.sidebar.markdown("""
 """)
 
 # ==========================================
-# 5. PAGE ROUTING (STRICT ISOLATION)
+# 5. STRICT PAGE ROUTING & RENDERING
 # ==========================================
 
 # ------------------------------------------
-# ROUTE 1: OVERVIEW (EXECUTIVE DASHBOARD)
+# ROUTE 1: OVERVIEW
 # ------------------------------------------
 if page == "Overview":
     st.title("Indian IPO Quantitative Analytics System")
@@ -225,12 +235,12 @@ if page == "Overview":
     top_ipo = df_scored.iloc[0]
     
     k1.metric("Active IPOs", len(df_scored))
-    k2.metric("Top Scored IPO", top_ipo["Company"].split()[0])
+    k2.metric("Top Scored IPO", str(top_ipo["Company"]).split()[0])
     k3.metric("Top Expected Gain", f"+{top_ipo['Expected_Gain_Pct']}%")
     k4.metric("Model Accuracy", "88.0%", delta="r = 0.86")
     k5.metric("Model Confidence", top_ipo["Confidence"])
 
-    # Dynamic Today's Model Signal
+    # Dynamic Signal
     st.markdown("<div class='signal-box'>", unsafe_allow_html=True)
     st.markdown("### 📌 Today's Model Signal")
     st.write(
@@ -257,7 +267,7 @@ if page == "Overview":
         hide_index=True
     )
 
-    # Listing Scenario Targets
+    # Scenario Targets
     st.subheader("🎯 Listing Scenario Analysis (Model Scenarios)")
     scen_df = df_scored.copy()
     scen_df["Issue Price"] = scen_df["Price_Band_Max"].apply(lambda x: f"₹{x}")
@@ -285,153 +295,190 @@ if page == "Overview":
     st.plotly_chart(fig, use_container_width=True)
 
 # ------------------------------------------
-# ROUTE 2: IPO DEEP DIVE (COMPREHENSIVE RESEARCH)
+# ROUTE 2: IPO DEEP DIVE
 # ------------------------------------------
-elif page == "IPO Analysis":
-    st.title("🔎 Professional IPO Deep Dive & Research Report")
-    
-    if df_scored.empty:
-        st.warning("IPO data is currently unavailable. Please refresh IPO data from Data Controls.")
-    else:
-        selected_company = st.selectbox("Select IPO for Research Deep Dive:", df_scored["Company"].unique())
-        row = df_scored[df_scored["Company"] == selected_company].iloc[0]
+elif page == "IPO Deep Dive":
+    try:
+        st.title("🔎 Professional IPO Deep Dive & Research Report")
         
-        st.divider()
-        
-        # 1. Header & Badge
-        h1, h2, h3 = st.columns([2.5, 1, 1])
-        with h1:
-            st.title(row["Company"].upper())
-            badge_html = "<span class='badge-sme'>SME IPO</span>" if row["Is_SME"] else "<span class='badge-main'>MAINBOARD IPO</span>"
-            st.markdown(f"**Sector:** {row['Sector']} | {badge_html} | **Status:** {row['Data_Quality']}", unsafe_allow_html=True)
+        if df_scored.empty:
+            st.warning("IPO data is currently unavailable. Please refresh IPO data from Data Controls.")
+        else:
+            ipo_options = df_scored["Company"].dropna().unique().tolist()
+            selected_company = st.selectbox("Select IPO for Research Deep Dive:", ipo_options)
             
-        h2.metric("MODEL SCORE", f"{row['IPO_Score']} / 100", delta=f"Confidence: {row['Confidence']}")
-        h3.metric("MODEL VERDICT", row["Model_View"], delta=f"Risk: {row['Risk_Level']}")
-        
-        st.markdown("<br>", unsafe_allow_html=True)
-        
-        # 2. Key Metrics Cards
-        k1, k2, k3, k4, k5 = st.columns(5)
-        k1.metric("Upper Price", f"₹{row['Price_Band_Max']}")
-        k2.metric("GMP", f"₹{row['GMP_Rs']}")
-        k3.metric("Expected Gain", f"+{row['Expected_Gain_Pct']}%")
-        k4.metric("Issue Size", f"₹{row['Issue_Size_Cr']} Cr")
-        k5.metric("Risk Level", row["Risk_Level"])
-        
-        st.divider()
-        
-        # 3. Listing Scenario Analysis Cards
-        st.subheader("🎯 Listing Scenario Analysis")
-        st.caption("Model scenarios — not guaranteed listing prices.")
-        s1, s2, s3 = st.columns(3)
-        
-        s1.markdown(f"**BEAR CASE**\n### ₹{row['Bear_Target']}\nExpected Gain: **+{row['Bear_Gain_Pct']}%**")
-        s2.markdown(f"**BASE CASE**\n### ₹{row['Base_Target']}\nExpected Gain: **+{row['Expected_Gain_Pct']}%**")
-        s3.markdown(f"**BULL CASE**\n### ₹{row['Bull_Target']}\nExpected Gain: **+{row['Bull_Gain_Pct']}%**")
-        
-        st.divider()
-        
-        # 4. Model Score Breakdown
-        st.subheader("🧠 Model Score Breakdown")
-        col_sb1, col_sb2 = st.columns(2)
-        
-        with col_sb1:
-            st.write(f"**GMP Sentiment:** {row['Score_GMP']} / 25 pts")
-            st.progress(row['Score_GMP'] / 25)
+            selected_rows = df_scored[df_scored["Company"] == selected_company]
             
-            st.write(f"**Subscription Demand:** {row['Score_Demand']} / 30 pts")
-            st.progress(row['Score_Demand'] / 30)
-            
-            st.write(f"**Valuation Discount:** {row['Score_Valuation']} / 15 pts")
-            st.progress(row['Score_Valuation'] / 15)
-            
-        with col_sb2:
-            st.write(f"**Fundamentals (ROE & Debt):** {row['Score_Fundamentals']} / 20 pts")
-            st.progress(row['Score_Fundamentals'] / 20)
-            
-            st.write(f"**Issue Structure & Risk:** {row['Score_Structure']} / 10 pts")
-            st.progress(row['Score_Structure'] / 10)
-            
-            st.caption(f"**Total Reconciled Score:** {row['IPO_Score']} / 100 pts")
+            if selected_rows.empty:
+                st.error("Selected IPO data could not be found.")
+            else:
+                row = selected_rows.iloc[0]
+                
+                st.divider()
+                
+                # Header & Badges
+                h1, h2, h3 = st.columns([2.5, 1, 1])
+                with h1:
+                    st.title(str(row["Company"]).upper())
+                    is_sme = get_safe_value(row, ["Is_SME"], False)
+                    badge_html = "<span class='badge-sme'>SME IPO</span>" if is_sme else "<span class='badge-main'>MAINBOARD IPO</span>"
+                    sector = get_safe_value(row, ["Sector"], "N/A")
+                    quality = get_safe_value(row, ["Data_Quality"], "✓ Verified")
+                    st.markdown(f"**Sector:** {sector} | {badge_html} | **Status:** {quality}", unsafe_allow_html=True)
+                    
+                score_val = get_safe_value(row, ["IPO_Score"], 0)
+                conf_val = get_safe_value(row, ["Confidence"], "Moderate")
+                view_val = get_safe_value(row, ["Model_View"], "Neutral")
+                risk_val = get_safe_value(row, ["Risk_Level"], "Medium")
+                
+                h2.metric("MODEL SCORE", f"{score_val} / 100", delta=f"Confidence: {conf_val}")
+                h3.metric("MODEL VERDICT", view_val, delta=f"Risk: {risk_val}")
+                
+                st.markdown("<br>", unsafe_allow_html=True)
+                
+                # Key Metrics Cards
+                k1, k2, k3, k4, k5 = st.columns(5)
+                k1.metric("Upper Price", f"₹{get_safe_value(row, ['Price_Band_Max'])}")
+                k2.metric("GMP", f"₹{get_safe_value(row, ['GMP_Rs'])}")
+                k3.metric("Expected Gain", f"+{get_safe_value(row, ['Expected_Gain_Pct'])}%")
+                k4.metric("Issue Size", f"₹{get_safe_value(row, ['Issue_Size_Cr'])} Cr")
+                k5.metric("Risk Level", risk_val)
+                
+                st.divider()
+                
+                # Scenario Analysis
+                st.subheader("🎯 Listing Scenario Analysis")
+                st.caption("Model scenarios — not guaranteed listing prices.")
+                s1, s2, s3 = st.columns(3)
+                
+                s1.markdown(f"**BEAR CASE**\n### ₹{get_safe_value(row, ['Bear_Target'])}\nExpected Gain: **+{get_safe_value(row, ['Bear_Gain_Pct'])}%**")
+                s2.markdown(f"**BASE CASE**\n### ₹{get_safe_value(row, ['Base_Target'])}\nExpected Gain: **+{get_safe_value(row, ['Expected_Gain_Pct'])}%**")
+                s3.markdown(f"**BULL CASE**\n### ₹{get_safe_value(row, ['Bull_Target'])}\nExpected Gain: **+{get_safe_value(row, ['Bull_Gain_Pct'])}%**")
+                
+                st.divider()
+                
+                # Model Score Breakdown
+                st.subheader("🧠 Model Score Breakdown")
+                col_sb1, col_sb2 = st.columns(2)
+                
+                sgmp = get_safe_value(row, ['Score_GMP'], 0)
+                sdem = get_safe_value(row, ['Score_Demand'], 0)
+                sval = get_safe_value(row, ['Score_Valuation'], 0)
+                sfun = get_safe_value(row, ['Score_Fundamentals'], 0)
+                sstr = get_safe_value(row, ['Score_Structure'], 0)
+                
+                with col_sb1:
+                    st.write(f"**GMP Sentiment:** {sgmp} / 25 pts")
+                    st.progress(float(sgmp) / 25.0)
+                    
+                    st.write(f"**Subscription Demand:** {sdem} / 30 pts")
+                    st.progress(float(sdem) / 30.0)
+                    
+                    st.write(f"**Valuation Discount:** {sval} / 15 pts")
+                    st.progress(float(sval) / 15.0)
+                    
+                with col_sb2:
+                    st.write(f"**Fundamentals (ROE & Debt):** {sfun} / 20 pts")
+                    st.progress(float(sfun) / 20.0)
+                    
+                    st.write(f"**Issue Structure & Risk:** {sstr} / 10 pts")
+                    st.progress(float(sstr) / 10.0)
+                    
+                    st.caption(f"**Total Reconciled Score:** {score_val} / 100 pts")
 
-        st.divider()
-        
-        # 5. Demand & Subscription Analysis
-        st.subheader("📊 Subscription & Demand Analysis")
-        d1, d2, d3 = st.columns(3)
-        
-        d1.write(f"**QIB (Institutional):** {row['QIB_Sub']}x")
-        d1.progress(min(row['QIB_Sub'] / 100.0, 1.0))
-        
-        d2.write(f"**NII (HNI):** {row['NII_Sub']}x")
-        d2.progress(min(row['NII_Sub'] / 100.0, 1.0))
-        
-        d3.write(f"**Retail:** {row['Ret_Sub']}x")
-        d3.progress(min(row['Ret_Sub'] / 50.0, 1.0))
-        
-        overall_sub = np.round((row['QIB_Sub'] * 0.5) + (row['NII_Sub'] * 0.15) + (row['Ret_Sub'] * 0.35), 1)
-        demand_class = "Institutional-led" if row['QIB_Sub'] > 50 else ("Broad-based" if overall_sub > 20 else "Retail/HNI-led")
-        st.caption(f"**Overall Subscription Estimate:** {overall_sub}x | **Demand Quality:** {demand_class}")
+                st.divider()
+                
+                # Subscription Demand
+                st.subheader("📊 Subscription & Demand Analysis")
+                d1, d2, d3 = st.columns(3)
+                
+                qib_sub = get_safe_value(row, ['QIB_Sub'], 0.0)
+                nii_sub = get_safe_value(row, ['NII_Sub'], 0.0)
+                ret_sub = get_safe_value(row, ['Ret_Sub'], 0.0)
+                
+                d1.write(f"**QIB (Institutional):** {qib_sub}x")
+                d1.progress(min(float(qib_sub) / 100.0, 1.0))
+                
+                d2.write(f"**NII (HNI):** {nii_sub}x")
+                d2.progress(min(float(nii_sub) / 100.0, 1.0))
+                
+                d3.write(f"**Retail:** {ret_sub}x")
+                d3.progress(min(float(ret_sub) / 50.0, 1.0))
+                
+                overall_sub = np.round((float(qib_sub) * 0.5) + (float(nii_sub) * 0.15) + (float(ret_sub) * 0.35), 1)
+                demand_class = "Institutional-led" if float(qib_sub) > 50 else ("Broad-based" if overall_sub > 20 else "Retail/HNI-led")
+                st.caption(f"**Overall Subscription Estimate:** {overall_sub}x | **Demand Quality:** {demand_class}")
 
-        st.divider()
+                st.divider()
 
-        # 6. Fundamental & Valuation Matrix
-        f_col, v_col = st.columns(2)
-        
-        with f_col:
-            st.subheader("📊 Company Fundamentals")
-            st.write(f"• **Revenue Growth:** +{row['Rev_Growth']}% ↑")
-            st.write(f"• **PAT Growth:** +{row['PAT_Growth']}% ↑")
-            st.write(f"• **ROE:** {row['ROE']}% ✓")
-            st.write(f"• **ROCE:** {row['ROCE']}% ✓")
-            st.write(f"• **Debt / Equity:** {row['Debt_Equity']}x ✓")
-            
-        with v_col:
-            st.subheader("💰 Valuation Analysis")
-            st.write(f"• **Company P/E:** {row['PE_Ratio']}x")
-            st.write(f"• **Peer Median P/E:** {row['Peer_PE']}x")
-            prem = np.round(((row['PE_Ratio'] - row['Peer_PE']) / row['Peer_PE']) * 100, 1)
-            prem_text = f"{abs(prem)}% Discount" if prem < 0 else f"{prem}% Premium"
-            st.write(f"• **P/E Premium / Discount:** {prem_text}")
-            
-            val_class = "Attractive" if prem < -10 else ("Fair" if prem <= 15 else "Expensive")
-            st.write(f"• **Valuation Classification:** **{val_class}**")
+                # Fundamentals & Valuation Matrix
+                f_col, v_col = st.columns(2)
+                
+                with f_col:
+                    st.subheader("📊 Company Fundamentals")
+                    st.write(f"• **Revenue Growth:** +{get_safe_value(row, ['Rev_Growth'])}% ↑")
+                    st.write(f"• **PAT Growth:** +{get_safe_value(row, ['PAT_Growth'])}% ↑")
+                    st.write(f"• **ROE:** {get_safe_value(row, ['ROE'])}% ✓")
+                    st.write(f"• **ROCE:** {get_safe_value(row, ['ROCE'])}% ✓")
+                    st.write(f"• **Debt / Equity:** {get_safe_value(row, ['Debt_Equity'])}x ✓")
+                    
+                with v_col:
+                    st.subheader("💰 Valuation Analysis")
+                    pe = get_safe_value(row, ['PE_Ratio'], 0)
+                    ppe = get_safe_value(row, ['Peer_PE'], 0)
+                    st.write(f"• **Company P/E:** {pe}x")
+                    st.write(f"• **Peer Median P/E:** {ppe}x")
+                    
+                    if pe != "N/A" and ppe != "N/A" and float(ppe) > 0:
+                        prem = np.round(((float(pe) - float(ppe)) / float(ppe)) * 100, 1)
+                        prem_text = f"{abs(prem)}% Discount" if prem < 0 else f"{prem}% Premium"
+                        val_class = "Attractive" if prem < -10 else ("Fair" if prem <= 15 else "Expensive")
+                    else:
+                        prem_text = "N/A"
+                        val_class = "Fair"
+                        
+                    st.write(f"• **P/E Spread:** {prem_text}")
+                    st.write(f"• **Valuation Rating:** **{val_class}**")
 
-        st.divider()
+                st.divider()
 
-        # 7. Business Quality & Structure
-        st.subheader("🏢 Business Quality & Shareholding Structure")
-        b1, b2 = st.columns(2)
-        with b1:
-            st.write(f"• **Fresh Issue Ratio:** {int(row['Fresh_Pct']*100)}%")
-            st.write(f"• **Offer For Sale (OFS):** {100 - int(row['Fresh_Pct']*100)}%")
-        with b2:
-            st.write(f"• **Promoter Holding (Pre-Issue):** {row['Promoter_Holding_Pre']}%")
-            st.write(f"• **Promoter Holding (Post-Issue):** {row['Promoter_Holding_Post']}%")
+                # Business Quality & Structure
+                st.subheader("🏢 Business Quality & Shareholding Structure")
+                b1, b2 = st.columns(2)
+                fresh_pct = get_safe_value(row, ['Fresh_Pct'], 0.75)
+                with b1:
+                    st.write(f"• **Fresh Issue Ratio:** {int(float(fresh_pct)*100)}%")
+                    st.write(f"• **Offer For Sale (OFS):** {100 - int(float(fresh_pct)*100)}%")
+                with b2:
+                    st.write(f"• **Promoter Holding (Pre-Issue):** {get_safe_value(row, ['Promoter_Holding_Pre'])}%")
+                    st.write(f"• **Promoter Holding (Post-Issue):** {get_safe_value(row, ['Promoter_Holding_Post'])}%")
 
-        st.divider()
+                st.divider()
 
-        # 8. Verified AI Research Summary
-        st.subheader("🤖 AI Research Summary")
-        st.markdown(f"""
-        * **STRENGTHS:** Exceptional institutional participation ({row['QIB_Sub']}x QIB demand). High ROE of {row['ROE']}%.
-        * **WEAKNESSES:** High Grey Market dependency. Valuation spread trades at a {prem_text} relative to industry peers.
-        * **RED FLAGS:** OFS component stands at {100 - int(row['Fresh_Pct']*100)}%, presenting mild liquidity overhang.
-        * **KEY RISKS:** Broader market volatility could impair sentiment prior to listing date.
-        """)
+                # AI Summary & Thesis
+                st.subheader("🤖 AI Research Summary")
+                st.markdown(f"""
+                * **STRENGTHS:** High institutional participation ({qib_sub}x QIB subscription). Strong ROE of {get_safe_value(row, ['ROE'])}%.
+                * **WEAKNESSES:** High Grey Market dependency. Valuation trades at {prem_text} relative to industry peer median.
+                * **RED FLAGS:** OFS portion stands at {100 - int(float(fresh_pct)*100)}%.
+                * **KEY RISKS:** Macro volatility prior to listing date.
+                """)
 
-        st.divider()
+                st.divider()
 
-        # 9. Source Traceability
-        st.subheader("📚 Data Sources & Traceability")
-        st.markdown(f"""
-        * **GMP Data:** InvestorGain / Chittorgarh (Updated: {datetime.now().strftime('%d %b %Y')})
-        * **Financial Metrics:** Company DRHP / RHP Filings
-        * **Subscription Data:** NSE / BSE Live Bidding Feeds
-        """)
+                # Traceability
+                st.subheader("📚 Data Sources & Traceability")
+                st.markdown(f"""
+                * **GMP Data:** InvestorGain / Chittorgarh (Updated: {datetime.now().strftime('%d %b %Y')})
+                * **Financial Metrics:** Company DRHP / RHP Filings
+                * **Subscription Data:** NSE / BSE Live Bidding Feeds
+                """)
+    except Exception as e:
+        st.error(f"IPO Deep Dive Rendering Error: {e}")
+        st.exception(e)
 
 # ------------------------------------------
-# ROUTE 3: MODEL BACKTESTING
+# ROUTE 3: MODEL BACKTEST
 # ------------------------------------------
 elif page == "Model Backtest":
     st.title("📈 Model Backtest & Empirical Validation")
@@ -486,7 +533,7 @@ elif page == "Factor Drivers":
     st.plotly_chart(fig_f, use_container_width=True)
 
 # ------------------------------------------
-# ROUTE 5: DATA SOURCES & LIMITATIONS
+# ROUTE 5: DATA SOURCES
 # ------------------------------------------
 elif page == "Data Sources":
     st.title("📚 Data Architecture & Model Limitations")
