@@ -159,17 +159,16 @@ st.subheader("🏆 Current Ranked IPO Predictions")
 disp_cols = ["Company", "Sector", "Price_Band_Max", "GMP_Rs", "Expected_Gain_Pct", "IPO_Score", "Risk_Level", "Prediction", "Source"]
 st.dataframe(
     df_scored[disp_cols].style.highlight_max(subset=["IPO_Score"], color="#1f6f43"),
-    use_container_width=True
+    use_container_width=True,
+    hide_index=True
 )
-
-# Scenario Targets Table
 
 # Scenario Targets Table
 st.subheader("🎯 Listing Scenario Targets (Bear / Base / Bull)")
 scen_cols = ["Company", "Price_Band_Max", "GMP_Rs", "Bear_Target", "Base_Listing_Price", "Bull_Target", "Prediction"]
 df_scen = df_scored[scen_cols].copy()
 df_scen.columns = ["Company", "Issue Price (₹)", "GMP (₹)", "Bear Case (₹)", "Base Target (₹)", "Bull Case (₹)", "Model Verdict"]
-st.dataframe(df_scen, use_container_width=True)
+st.dataframe(df_scen, use_container_width=True, hide_index=True)
 
 # Scatter Analysis Chart
 st.subheader("📈 IPO Score vs Expected Listing Gain")
