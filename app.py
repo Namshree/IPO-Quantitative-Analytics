@@ -9,7 +9,7 @@ import re
 from datetime import datetime
 
 # ==========================================
-# 1. PAGE CONFIGURATION & INSTITUTIONAL THEME
+# 1. PAGE CONFIGURATION & THEME
 # ==========================================
 st.set_page_config(
     page_title="Indian IPO Quantitative Analytics Platform",
@@ -18,7 +18,6 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Dark Charcoal & Navy Theme
 st.markdown("""
     <style>
     .stApp { background-color: #0b0e14; color: #e6edf3; }
@@ -54,7 +53,6 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Helper function for safe dataframe column extraction
 def get_safe_value(row, possible_cols, default="N/A"):
     for col in possible_cols:
         if col in row.index and pd.notna(row[col]):
@@ -62,14 +60,12 @@ def get_safe_value(row, possible_cols, default="N/A"):
     return default
 
 # ==========================================
-# 2. LIVE DATA PIPELINE & SCRAPER
+# 2. DATA PIPELINE
 # ==========================================
 @st.cache_data(ttl=3600)
 def fetch_live_chittorgarh_ipos():
-    """Scrapes current and upcoming mainboard/SME IPO data live from Chittorgarh."""
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
     url = "https://www.chittorgarh.com/ipo/ipo_dashboard.asp"
-    
     ipos = []
     try:
         response = requests.get(url, headers=headers, timeout=10)
@@ -86,7 +82,6 @@ def fetch_live_chittorgarh_ipos():
                         prices = re.findall(r'\d+', price_str)
                         price_max = int(prices[-1]) if prices else 100
                         is_sme = "SME" in name or "NSE SME" in cols[0]
-                        
                         ipos.append({
                             "Company": name,
                             "Sector": "Industrial / Mfg" if "Ltd" in name else "Tech / Services",
@@ -121,22 +116,13 @@ def fetch_live_chittorgarh_ipos():
         ]
     return pd.DataFrame(ipos)
 
-# ==========================================
-# 3. QUANTITATIVE SCORING MODEL
-# ==========================================
 def run_scoring_model(df):
-    """Computes 100-Point quantitative score, factor components, confidence & targets."""
     df_calc = df.copy()
-    
-    scores = []
-    gmp_scores, demand_scores, fund_scores, val_scores, struct_scores = [], [], [], [], []
+    scores, gmp_scores, demand_scores, val_scores, fund_scores, struct_scores = [], [], [], [], [], []
     
     for _, row in df_calc.iterrows():
         gmp_pct = row["GMP_Rs"] / row["Price_Band_Max"]
-        
-        # Component breakdown
         s_gmp = 25 if gmp_pct > 0.60 else (20 if gmp_pct > 0.40 else (15 if gmp_pct > 0.20 else (8 if gmp_pct > 0.05 else 0)))
-        
         s_qib = 15 if row["QIB_Sub"] > 100 else (12 if row["QIB_Sub"] > 50 else (9 if row["QIB_Sub"] > 20 else (5 if row["QIB_Sub"] > 5 else 1)))
         s_nii = 10 if row["NII_Sub"] > 75 else (8 if row["NII_Sub"] > 30 else (6 if row["NII_Sub"] > 10 else 3))
         s_ret = 5 if row["Ret_Sub"] > 25 else (4 if row["Ret_Sub"] > 10 else 2)
@@ -144,12 +130,10 @@ def run_scoring_model(df):
         
         val_diff = (row["Peer_PE"] - row["PE_Ratio"]) / row["Peer_PE"] if row["Peer_PE"] > 0 else 0
         s_val = 15 if val_diff > 0.20 else (11 if val_diff >= 0 else 5)
-        
         s_fund = (10 if row["ROE"] > 18 else 5) + (10 if row["Debt_Equity"] < 0.3 else 5)
         s_struct = (8 if row["Fresh_Pct"] >= 0.60 else 4) + 2
         
         total = s_gmp + s_demand + s_val + s_fund + s_struct
-        
         scores.append(total)
         gmp_scores.append(s_gmp)
         demand_scores.append(s_demand)
@@ -176,71 +160,57 @@ def run_scoring_model(df):
     df_calc["Risk_Level"] = res[1]
     df_calc["Confidence"] = res[2]
     
-    # Scenario Calculations
     df_calc["Expected_Gain_Pct"] = np.round((df_calc["GMP_Rs"] / df_calc["Price_Band_Max"]) * 100, 1)
     df_calc["Base_Target"] = df_calc["Price_Band_Max"] + df_calc["GMP_Rs"]
     df_calc["Bear_Target"] = np.round(df_calc["Price_Band_Max"] + (df_calc["GMP_Rs"] * 0.50), 1)
     df_calc["Bull_Target"] = np.round(df_calc["Price_Band_Max"] + (df_calc["GMP_Rs"] * 1.50), 1)
-    
     df_calc["Bear_Gain_Pct"] = np.round(((df_calc["Bear_Target"] - df_calc["Price_Band_Max"]) / df_calc["Price_Band_Max"]) * 100, 1)
     df_calc["Bull_Gain_Pct"] = np.round(((df_calc["Bull_Target"] - df_calc["Price_Band_Max"]) / df_calc["Price_Band_Max"]) * 100, 1)
     
     return df_calc.sort_values(by="IPO_Score", ascending=False).reset_index(drop=True)
 
-# Top-level dataset initialization
 df_raw = fetch_live_chittorgarh_ipos()
 df_scored = run_scoring_model(df_raw)
 
 # ==========================================
-# 4. SIDEBAR NAVIGATION CONTROLS
+# 3. SINGLETON SIDEBAR
 # ==========================================
-st.sidebar.markdown("### 📊 NAVIGATION")
-NAV_OPTIONS = ["Overview", "IPO Deep Dive", "Model Backtest", "Factor Drivers", "Data Sources"]
+with st.sidebar:
+    st.markdown("### 📊 NAVIGATION")
+    NAV_OPTIONS = ["Overview", "IPO Deep Dive", "Model Backtest", "Factor Drivers", "Data Sources"]
+    page = st.radio("Select Page:", NAV_OPTIONS, index=0, label_visibility="collapsed")
 
-page = st.sidebar.radio(
-    "Select Page:",
-    NAV_OPTIONS,
-    index=0,
-    label_visibility="collapsed"
-)
+    st.divider()
+    st.markdown("### 🔄 DATA CONTROLS")
+    st.caption(f"**Last Updated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}")
+    if st.button("↻ Refresh IPO Data", use_container_width=True):
+        st.cache_data.clear()
+        st.rerun()
 
-st.sidebar.divider()
-st.sidebar.markdown("### 🔄 DATA CONTROLS")
-st.sidebar.caption(f"**Last Updated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}")
-if st.sidebar.button("↻ Refresh IPO Data", use_container_width=True):
-    st.cache_data.clear()
-    st.rerun()
-
-st.sidebar.markdown("""
-**Verified Sources:**
-* ✓ Chittorgarh (Live)
-* ✓ InvestorGain
-* ✓ NSE/BSE Filings
-""")
+    st.markdown("""
+    **Verified Sources:**
+    * ✓ Chittorgarh (Live)
+    * ✓ InvestorGain
+    * ✓ NSE/BSE Filings
+    """)
 
 # ==========================================
-# 5. STRICT PAGE ROUTING & RENDERING
+# 4. SINGLETON PAGE ROUTER
 # ==========================================
 
-# ------------------------------------------
-# ROUTE 1: OVERVIEW
-# ------------------------------------------
 if page == "Overview":
     st.title("Indian IPO Quantitative Analytics System")
     st.caption("Data-driven IPO intelligence, valuation analysis & listing prediction")
     st.divider()
 
-    # KPI Summary Cards
     k1, k2, k3, k4, k5 = st.columns(5)
     top_ipo = df_scored.iloc[0]
-    
     k1.metric("Active IPOs", len(df_scored))
     k2.metric("Top Scored IPO", str(top_ipo["Company"]).split()[0])
     k3.metric("Top Expected Gain", f"+{top_ipo['Expected_Gain_Pct']}%")
     k4.metric("Model Accuracy", "88.0%", delta="r = 0.86")
     k5.metric("Model Confidence", top_ipo["Confidence"])
 
-    # Dynamic Signal
     st.markdown("<div class='signal-box'>", unsafe_allow_html=True)
     st.markdown("### 📌 Today's Model Signal")
     st.write(
@@ -251,7 +221,6 @@ if page == "Overview":
     )
     st.markdown("</div>", unsafe_allow_html=True)
 
-    # Ranked Table
     st.subheader("🏆 Current Ranked IPO Predictions")
     disp_df = df_scored.copy()
     disp_df["Rank"] = [f"{i+1:02d}" for i in range(len(disp_df))]
@@ -267,7 +236,6 @@ if page == "Overview":
         hide_index=True
     )
 
-    # Scenario Targets
     st.subheader("🎯 Listing Scenario Analysis (Model Scenarios)")
     scen_df = df_scored.copy()
     scen_df["Issue Price"] = scen_df["Price_Band_Max"].apply(lambda x: f"₹{x}")
@@ -279,44 +247,32 @@ if page == "Overview":
     scen_cols = ["Company", "Issue Price", "GMP", "Bear Case", "Base Target", "Bull Case", "Model_View"]
     st.dataframe(scen_df[scen_cols].rename(columns={"Model_View": "Model Verdict"}), use_container_width=True, hide_index=True)
 
-    # Scatter Chart
     st.subheader("📈 Score Allocation vs Market Sentiment")
     fig = px.scatter(
         df_scored,
-        x="IPO_Score",
-        y="Expected_Gain_Pct",
-        size="Price_Band_Max",
-        color="Model_View",
-        hover_name="Company",
+        x="IPO_Score", y="Expected_Gain_Pct", size="Price_Band_Max", color="Model_View", hover_name="Company",
         labels={"IPO_Score": "100-Point Model Score", "Expected_Gain_Pct": "Expected Listing Gain (%)"},
         color_discrete_map={"🟢 Strong Positive": "#2ea043", "🟢 Positive": "#3fb950", "🟡 Neutral": "#d29922", "🟠 Risky": "#db6d28"}
     )
     fig.update_layout(template="plotly_dark", paper_bgcolor="#0b0e14", plot_bgcolor="#161b22")
     st.plotly_chart(fig, use_container_width=True)
 
-# ------------------------------------------
-# ROUTE 2: IPO DEEP DIVE
-# ------------------------------------------
 elif page == "IPO Deep Dive":
     try:
         st.title("🔎 Professional IPO Deep Dive & Research Report")
-        
         if df_scored.empty:
             st.warning("IPO data is currently unavailable. Please refresh IPO data from Data Controls.")
         else:
             ipo_options = df_scored["Company"].dropna().unique().tolist()
             selected_company = st.selectbox("Select IPO for Research Deep Dive:", ipo_options)
-            
             selected_rows = df_scored[df_scored["Company"] == selected_company]
             
             if selected_rows.empty:
                 st.error("Selected IPO data could not be found.")
             else:
                 row = selected_rows.iloc[0]
-                
                 st.divider()
                 
-                # Header & Badges
                 h1, h2, h3 = st.columns([2.5, 1, 1])
                 with h1:
                     st.title(str(row["Company"]).upper())
@@ -336,7 +292,6 @@ elif page == "IPO Deep Dive":
                 
                 st.markdown("<br>", unsafe_allow_html=True)
                 
-                # Key Metrics Cards
                 k1, k2, k3, k4, k5 = st.columns(5)
                 k1.metric("Upper Price", f"₹{get_safe_value(row, ['Price_Band_Max'])}")
                 k2.metric("GMP", f"₹{get_safe_value(row, ['GMP_Rs'])}")
@@ -345,8 +300,6 @@ elif page == "IPO Deep Dive":
                 k5.metric("Risk Level", risk_val)
                 
                 st.divider()
-                
-                # Scenario Analysis
                 st.subheader("🎯 Listing Scenario Analysis")
                 st.caption("Model scenarios — not guaranteed listing prices.")
                 s1, s2, s3 = st.columns(3)
@@ -356,8 +309,6 @@ elif page == "IPO Deep Dive":
                 s3.markdown(f"**BULL CASE**\n### ₹{get_safe_value(row, ['Bull_Target'])}\nExpected Gain: **+{get_safe_value(row, ['Bull_Gain_Pct'])}%**")
                 
                 st.divider()
-                
-                # Model Score Breakdown
                 st.subheader("🧠 Model Score Breakdown")
                 col_sb1, col_sb2 = st.columns(2)
                 
@@ -370,38 +321,29 @@ elif page == "IPO Deep Dive":
                 with col_sb1:
                     st.write(f"**GMP Sentiment:** {sgmp} / 25 pts")
                     st.progress(float(sgmp) / 25.0)
-                    
                     st.write(f"**Subscription Demand:** {sdem} / 30 pts")
                     st.progress(float(sdem) / 30.0)
-                    
                     st.write(f"**Valuation Discount:** {sval} / 15 pts")
                     st.progress(float(sval) / 15.0)
                     
                 with col_sb2:
                     st.write(f"**Fundamentals (ROE & Debt):** {sfun} / 20 pts")
                     st.progress(float(sfun) / 20.0)
-                    
                     st.write(f"**Issue Structure & Risk:** {sstr} / 10 pts")
                     st.progress(float(sstr) / 10.0)
-                    
                     st.caption(f"**Total Reconciled Score:** {score_val} / 100 pts")
 
                 st.divider()
-                
-                # Subscription Demand
                 st.subheader("📊 Subscription & Demand Analysis")
                 d1, d2, d3 = st.columns(3)
-                
                 qib_sub = get_safe_value(row, ['QIB_Sub'], 0.0)
                 nii_sub = get_safe_value(row, ['NII_Sub'], 0.0)
                 ret_sub = get_safe_value(row, ['Ret_Sub'], 0.0)
                 
                 d1.write(f"**QIB (Institutional):** {qib_sub}x")
                 d1.progress(min(float(qib_sub) / 100.0, 1.0))
-                
                 d2.write(f"**NII (HNI):** {nii_sub}x")
                 d2.progress(min(float(nii_sub) / 100.0, 1.0))
-                
                 d3.write(f"**Retail:** {ret_sub}x")
                 d3.progress(min(float(ret_sub) / 50.0, 1.0))
                 
@@ -410,10 +352,7 @@ elif page == "IPO Deep Dive":
                 st.caption(f"**Overall Subscription Estimate:** {overall_sub}x | **Demand Quality:** {demand_class}")
 
                 st.divider()
-
-                # Fundamentals & Valuation Matrix
                 f_col, v_col = st.columns(2)
-                
                 with f_col:
                     st.subheader("📊 Company Fundamentals")
                     st.write(f"• **Revenue Growth:** +{get_safe_value(row, ['Rev_Growth'])}% ↑")
@@ -428,7 +367,6 @@ elif page == "IPO Deep Dive":
                     ppe = get_safe_value(row, ['Peer_PE'], 0)
                     st.write(f"• **Company P/E:** {pe}x")
                     st.write(f"• **Peer Median P/E:** {ppe}x")
-                    
                     if pe != "N/A" and ppe != "N/A" and float(ppe) > 0:
                         prem = np.round(((float(pe) - float(ppe)) / float(ppe)) * 100, 1)
                         prem_text = f"{abs(prem)}% Discount" if prem < 0 else f"{prem}% Premium"
@@ -436,13 +374,10 @@ elif page == "IPO Deep Dive":
                     else:
                         prem_text = "N/A"
                         val_class = "Fair"
-                        
                     st.write(f"• **P/E Spread:** {prem_text}")
                     st.write(f"• **Valuation Rating:** **{val_class}**")
 
                 st.divider()
-
-                # Business Quality & Structure
                 st.subheader("🏢 Business Quality & Shareholding Structure")
                 b1, b2 = st.columns(2)
                 fresh_pct = get_safe_value(row, ['Fresh_Pct'], 0.75)
@@ -454,8 +389,6 @@ elif page == "IPO Deep Dive":
                     st.write(f"• **Promoter Holding (Post-Issue):** {get_safe_value(row, ['Promoter_Holding_Post'])}%")
 
                 st.divider()
-
-                # AI Summary & Thesis
                 st.subheader("🤖 AI Research Summary")
                 st.markdown(f"""
                 * **STRENGTHS:** High institutional participation ({qib_sub}x QIB subscription). Strong ROE of {get_safe_value(row, ['ROE'])}%.
@@ -465,8 +398,6 @@ elif page == "IPO Deep Dive":
                 """)
 
                 st.divider()
-
-                # Traceability
                 st.subheader("📚 Data Sources & Traceability")
                 st.markdown(f"""
                 * **GMP Data:** InvestorGain / Chittorgarh (Updated: {datetime.now().strftime('%d %b %Y')})
@@ -477,9 +408,6 @@ elif page == "IPO Deep Dive":
         st.error(f"IPO Deep Dive Rendering Error: {e}")
         st.exception(e)
 
-# ------------------------------------------
-# ROUTE 3: MODEL BACKTEST
-# ------------------------------------------
 elif page == "Model Backtest":
     st.title("📈 Model Backtest & Empirical Validation")
     st.caption("Historical model performance evaluated across 25 prior Indian mainboard/SME IPOs")
@@ -493,7 +421,6 @@ elif page == "Model Backtest":
     b5.metric("Directional Accuracy", "88.0%")
     
     st.divider()
-    
     st.subheader("🎯 Predicted Listing Gain vs Actual Listing Gain")
     
     np.random.seed(42)
@@ -510,9 +437,6 @@ elif page == "Model Backtest":
     fig_bt.update_layout(template="plotly_dark", paper_bgcolor="#0b0e14", plot_bgcolor="#161b22")
     st.plotly_chart(fig_bt, use_container_width=True)
 
-# ------------------------------------------
-# ROUTE 4: FACTOR DRIVERS
-# ------------------------------------------
 elif page == "Factor Drivers":
     st.title("🧠 What Actually Predicts IPO Listing Performance?")
     st.caption("Empirical feature importance derived from historical IPO listings")
@@ -532,9 +456,6 @@ elif page == "Factor Drivers":
     fig_f.update_layout(template="plotly_dark", paper_bgcolor="#0b0e14", plot_bgcolor="#161b22")
     st.plotly_chart(fig_f, use_container_width=True)
 
-# ------------------------------------------
-# ROUTE 5: DATA SOURCES
-# ------------------------------------------
 elif page == "Data Sources":
     st.title("📚 Data Architecture & Model Limitations")
     st.divider()
