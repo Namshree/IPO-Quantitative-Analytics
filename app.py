@@ -198,7 +198,12 @@ elif selected_module == "IPO Comparison":
     
     if selected_comps:
         comp_df = df_overview[df_overview["Company"].isin(selected_comps)]
-        st.dataframe(comp_df, use_container_width=True)
+        
+        # Transpose the dataframe so Metrics are rows and Companies are columns
+        comp_df = comp_df.set_index("Company").T.reset_index().rename(columns={"index": "Metric"})
+        
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.dataframe(comp_df, use_container_width=True, hide_index=True)
     else:
         st.warning("Please select at least two IPOs to compare.")
 
