@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Data Sources — Indian IPO Quantitative Analytics{% endblock %}
+{% block content %}
+<h1 class="page-title">Data Architecture, Hierarchy &amp; Integrity Legend</h1>
+<p class="subtitle">Source traceability matrix, field timestamps, and missing data policies.</p>
+
+<h2 class="section-title">Strict Data Source Hierarchy</h2>
+<div id="source-hierarchy" style="margin-bottom: var(--space-8);">
+  <div class="placeholder">Loading…</div>
+</div>
+
+<h2 class="section-title">Field-Level Traceability Matrix</h2>
+<div id="traceability-table">
+  <div class="placeholder">Loading…</div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/data_sources.js"></script>
+{% endblock %}

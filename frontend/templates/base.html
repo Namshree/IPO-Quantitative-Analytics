@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>{% block title %}Indian IPO Quantitative Analytics{% endblock %}</title>
+  <meta name="description" content="Auditable, backtested quantitative IPO research and listing scenario engine for Indian IPOs.">
+  <link rel="stylesheet" href="/static/css/styles.css">
+  <script>
+    /* Runs before first paint to avoid a flash of the wrong theme. */
+    (function () {
+      try {
+        var stored = localStorage.getItem('ipo-theme');
+        if (stored === 'light' || stored === 'dark') {
+          document.documentElement.setAttribute('data-theme', stored);
+        }
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+  <nav class="nav-bar">
+    <a class="nav-brand" href="/">
+      <span class="mark">IQ</span>
+      <span>IPO Quant Analytics</span>
+    </a>
+    <div class="nav-items">
+      {% for item in nav_items %}
+      <a class="nav-item{% if item.path == active_path %} active{% endif %}" href="{{ item.path }}">{{ item.label }}</a>
+      {% endfor %}
+    </div>
+    <div class="nav-actions">
+      <button id="theme-toggle" class="btn btn-icon" type="button" aria-label="Toggle light/dark theme" title="Toggle theme">
+        <span id="theme-toggle-icon">&#9789;</span>
+      </button>
+    </div>
+  </nav>
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <p class="disclaimer">
+      This application provides quantitative research estimates for analytical and educational purposes.
+      Model outputs are probabilistic estimates and are not investment advice or guaranteed listing outcomes.
+      Historical validation results do not guarantee future performance.
+    </p>
+  </footer>
+
+  <div class="tab-bar" role="navigation" aria-label="Primary">
+    {% set tab_icons = {
+      '/': '&#128200;',
+      '/deep-dive': '&#128269;',
+      '/compare': '&#9878;',
+      '/backtest': '&#129514;',
+      '/factor-drivers': '&#128300;',
+      '/methodology': '&#128218;',
+      '/data-sources': '&#128193;'
+    } %}
+    {% for item in nav_items %}
+    <a class="tab-item{% if item.path == active_path %} active{% endif %}" href="{{ item.path }}">
+      <span class="tab-icon">{{ tab_icons.get(item.path, '&#8226;') | safe }}</span>
+      <span>{{ item.label }}</span>
+    </a>
+    {% endfor %}
+  </div>
+
+  <script src="/static/js/theme.js"></script>
+  <script src="/static/js/api.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}IPO Comparison — Indian IPO Quantitative Analytics{% endblock %}
+{% block content %}
+<h1 class="page-title">Side-by-Side Active IPO Comparison</h1>
+<p class="subtitle">Compare tracked IPOs across demand factors, model adjustments, and scenario ranges in a single unified table.</p>
+
+<div class="glass-card glass-card--tight" style="margin-bottom: var(--space-6);">
+  <label>Select Tracked IPOs to Compare (2 to 4)</label>
+  <div id="company-checkboxes" class="checkbox-grid" style="margin-top: var(--space-3);">
+    <div class="placeholder">Loading…</div>
+  </div>
+  <p id="compare-validation" class="inline-note" style="margin-top: var(--space-2);"></p>
+</div>
+
+<div id="compare-body">
+  <div class="placeholder">Select 2 to 4 IPOs above to compare.</div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/compare.js"></script>
+{% endblock %}

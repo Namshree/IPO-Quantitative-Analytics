@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Overview — Indian IPO Quantitative Analytics{% endblock %}
+{% block content %}
+<h1 class="page-title">Indian IPO Quantitative Analytics &amp; Listing Scenario Engine</h1>
+<p class="subtitle">Auditable data-driven IPO research, quantitative scoring, independent listing scenario analysis, and backtested validation.</p>
+
+<div class="callout callout-accent" style="margin-bottom: var(--space-6);">
+  <strong>Quantitative Methodology Notice:</strong>
+  System outputs are independent probabilistic estimates derived from institutional bidding momentum, financial
+  fundamentals, relative valuation, and grey market sentiment. GMP is treated strictly as an analytical input,
+  not the final prediction target.
+</div>
+
+<div id="headline-stats" class="grid grid-stats" style="margin-bottom: var(--space-8);">
+  <div class="placeholder">Loading…</div>
+</div>
+
+<h2 class="section-title">Quantitative Listing Signal Ranking</h2>
+<p class="subtitle">IPOs ranked automatically by quantitative model score and institutional bidding strength.</p>
+
+<div id="ipo-ranking">
+  <div class="placeholder">Loading…</div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/overview.js"></script>
+{% endblock %}

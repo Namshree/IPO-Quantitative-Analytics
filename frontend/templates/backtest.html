@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Model Backtest — Indian IPO Quantitative Analytics{% endblock %}
+{% block content %}
+<h1 class="page-title">Historical Out-of-Sample Validation &amp; Model Calibration</h1>
+<p class="subtitle">Leave-one-out cross-validation against prior Indian IPO listings.</p>
+
+<div id="backtest-stats" class="grid grid-stats" style="margin-bottom: var(--space-6);">
+  <div class="placeholder">Loading…</div>
+</div>
+
+<div id="backtest-caveat" style="margin-bottom: var(--space-8);"></div>
+
+<h2 class="section-title">Historical Walk-Forward Prediction Table</h2>
+<div id="backtest-table">
+  <div class="placeholder">Loading…</div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/backtest.js"></script>
+{% endblock %}

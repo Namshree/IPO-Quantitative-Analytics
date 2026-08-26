@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}IPO Deep Dive — Indian IPO Quantitative Analytics{% endblock %}
+{% block content %}
+<h1 class="page-title">Auditable IPO Research &amp; Deep Dive</h1>
+<p class="subtitle">Complete mathematical reconciliation, factor driver audit, scenario ranges, and risk flags.</p>
+
+<div class="glass-card glass-card--tight glass-card--select" style="margin-bottom: var(--space-6); max-width: 480px;">
+  <label id="company-select-label">Select IPO for Deep Dive Analysis</label>
+  <div class="custom-select" id="company-select">
+    <button type="button" class="custom-select-trigger" id="company-select-trigger"
+            aria-haspopup="listbox" aria-expanded="false" aria-labelledby="company-select-label company-select-trigger">
+      <span class="custom-select-value" id="company-select-value">Loading…</span>
+      <span class="custom-select-chevron" aria-hidden="true">&#9662;</span>
+    </button>
+    <ul class="custom-select-list" id="company-select-list" role="listbox" tabindex="-1" hidden></ul>
+  </div>
+</div>
+
+<div id="deep-dive-body">
+  <div class="placeholder">Select an IPO to view analysis…</div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/deep_dive.js"></script>
+{% endblock %}

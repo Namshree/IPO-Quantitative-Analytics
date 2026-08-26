@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Factor Drivers — Indian IPO Quantitative Analytics{% endblock %}
+{% block content %}
+<h1 class="page-title">Factor Drivers &amp; Scoring Weights</h1>
+<p class="subtitle">Methodological decomposition of model weights across the 100-point scorecard.</p>
+
+<div id="factor-note" style="margin-bottom: var(--space-6);"></div>
+
+<div id="factor-table">
+  <div class="placeholder">Loading…</div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/factor_drivers.js"></script>
+{% endblock %}

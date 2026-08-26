@@ -1,0 +1,135 @@
+{
+  "n_samples": 15,
+  "method": "Ridge regression on GMP/issue-price ratio; alpha chosen via leave-one-out CV grid search over out-of-fold MAE",
+  "alpha": 100.0,
+  "loocv_mae_pp": 8.95,
+  "loocv_bias_pp": 0.55,
+  "loocv_bias_direction": "overestimation",
+  "loocv_pearson_r": 0.931,
+  "historical_median_actual_gain_pct": 62.7,
+  "historical_mean_actual_gain_pct": 59.3,
+  "directional_accuracy_pct": 86.7,
+  "directional_accuracy_definition": "Share of the 15 backtest listings where the out-of-fold prediction fell on the same side of the historical median actual gain as the real outcome.",
+  "backtest_rows": [
+    {
+      "company": "DOMS Industries Ltd.",
+      "gmp_ratio_pct": 67.1,
+      "predicted_gain_pct": 75.1,
+      "actual_gain_pct": 77.6,
+      "error_pp": -2.5,
+      "correct_side": true
+    },
+    {
+      "company": "Inox CWA Ltd.",
+      "gmp_ratio_pct": 84.1,
+      "predicted_gain_pct": 90.4,
+      "actual_gain_pct": 90.7,
+      "error_pp": -0.3,
+      "correct_side": true
+    },
+    {
+      "company": "Happy Forgings Ltd.",
+      "gmp_ratio_pct": 25.9,
+      "predicted_gain_pct": 37.9,
+      "actual_gain_pct": 46.7,
+      "error_pp": -8.8,
+      "correct_side": true
+    },
+    {
+      "company": "Mufti (Credo Brands)",
+      "gmp_ratio_pct": 48.2,
+      "predicted_gain_pct": 58.3,
+      "actual_gain_pct": 62.7,
+      "error_pp": -4.4,
+      "correct_side": false
+    },
+    {
+      "company": "Jyoti CNC Automation",
+      "gmp_ratio_pct": 13.6,
+      "predicted_gain_pct": 28.9,
+      "actual_gain_pct": 19.7,
+      "error_pp": 9.2,
+      "correct_side": true
+    },
+    {
+      "company": "Medi Assist Healthcare",
+      "gmp_ratio_pct": 9.1,
+      "predicted_gain_pct": 24.4,
+      "actual_gain_pct": 19.7,
+      "error_pp": 4.7,
+      "correct_side": true
+    },
+    {
+      "company": "BLS E-Services Ltd.",
+      "gmp_ratio_pct": 118.5,
+      "predicted_gain_pct": 124.8,
+      "actual_gain_pct": 112.0,
+      "error_pp": 12.8,
+      "correct_side": true
+    },
+    {
+      "company": "Exicom Tele-Systems",
+      "gmp_ratio_pct": 119.7,
+      "predicted_gain_pct": 128.3,
+      "actual_gain_pct": 107.8,
+      "error_pp": 20.5,
+      "correct_side": true
+    },
+    {
+      "company": "JG Chemicals Ltd.",
+      "gmp_ratio_pct": 13.6,
+      "predicted_gain_pct": 27.5,
+      "actual_gain_pct": 29.4,
+      "error_pp": -1.9,
+      "correct_side": true
+    },
+    {
+      "company": "Kross Ltd.",
+      "gmp_ratio_pct": 0.0,
+      "predicted_gain_pct": 16.4,
+      "actual_gain_pct": 12.2,
+      "error_pp": 4.2,
+      "correct_side": true
+    },
+    {
+      "company": "Tolins Tyres Ltd.",
+      "gmp_ratio_pct": 13.3,
+      "predicted_gain_pct": 28.2,
+      "actual_gain_pct": 22.7,
+      "error_pp": 5.5,
+      "correct_side": true
+    },
+    {
+      "company": "Northern Arc Capital",
+      "gmp_ratio_pct": 48.7,
+      "predicted_gain_pct": 58.6,
+      "actual_gain_pct": 64.4,
+      "error_pp": -5.8,
+      "correct_side": false
+    },
+    {
+      "company": "Premier Energies Ltd.",
+      "gmp_ratio_pct": 77.8,
+      "predicted_gain_pct": 80.7,
+      "actual_gain_pct": 120.0,
+      "error_pp": -39.3,
+      "correct_side": true
+    },
+    {
+      "company": "Baazar Style Retail",
+      "gmp_ratio_pct": 28.3,
+      "predicted_gain_pct": 41.8,
+      "actual_gain_pct": 31.0,
+      "error_pp": 10.8,
+      "correct_side": true
+    },
+    {
+      "company": "PN Gadgil Jewellers",
+      "gmp_ratio_pct": 68.8,
+      "predicted_gain_pct": 77.1,
+      "actual_gain_pct": 73.5,
+      "error_pp": 3.6,
+      "correct_side": true
+    }
+  ]
+}

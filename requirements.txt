@@ -1,7 +1,6 @@
-streamlit
-pandas
-plotly
-beautifulsoup4
-requests
-openpyxl
-weasyprint
+fastapi
+uvicorn[standard]
+jinja2
+scikit-learn
+joblib
+numpy
